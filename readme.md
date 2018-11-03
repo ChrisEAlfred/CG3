@@ -1,5 +1,24 @@
 # CG3
 
+## Setup
+
+Checkout:
+- https://github.com/ChrisEAlfred/CG3
+- https://github.com/ChrisEAlfred/galparse
+
+The tree should look like
+
+~~~
+|
++- CG3
+|
++- galparse
+~~~
+
+## GALS Parsing Command Lines
+
+All executed from the `galparse` directory.
+
 BSELGAL
 
 ~~~
