@@ -1,0 +1,136 @@
+Name		SYNCGAL4 ;
+Partno		SYNCGAL4 ;
+Date		21/09/18 ;
+Revision	05 ;
+Designer	Chris Alfred ;
+Company		Chris Alfred ;
+Assembly	ESP-CG3 ;
+Location	U27 ;
+Device		p22v10 ;
+
+/*----------------------------------------------------------------------*/
+/* Inputs								*/
+/*----------------------------------------------------------------------*/
+
+Pin 1	= V5;		/* Vertical 5 */
+Pin 2	= H3;		/* Horizontal bit 3 */
+Pin 3	= H2;		/* Horizontal bit 2 */
+Pin 4	= H1;		/* Horizontal bit 1 */
+Pin 5	= H0;		/* Horizontal bit 0 */
+Pin 6	= H4;		/* Horizontal bit 4 */
+Pin 7	= H5;		/* Horizontal bit 5 */
+Pin 8	= HBLANK;	/* Horizontal blank (bytes 64..) */
+Pin 9	= V0;		/* Vertical 0 */
+Pin 10	= V2;		/* Vertical 2 */
+Pin 11	= V3;		/* Vertical 3 */
+Pin 13	= V4;		/* Vertical 4 */
+
+Pin 17	= V9;		/* Vertical 9 */
+Pin 18	= V8;		/* Vertical 8 */
+Pin 19	= L512;		/* 512 line mode */
+
+/*----------------------------------------------------------------------*/
+/* Outputs								*/
+/*----------------------------------------------------------------------*/
+
+Pin 14	= LINC;		/* Line increment */
+Pin 15	= !LASTL;	/* Last line */
+Pin 16	= !LRST;	/* Line reset */
+Pin 20	= !HSYNC;	/* Horizontal sync */
+Pin 21	= !VSYNC;	/* Vertical sync */
+Pin 22	= BLANK;	/* Blanking output */
+Pin 23	= !VSCRST;	/* Vertical scroll reset */
+
+/*----------------------------------------------------------------------*/
+/* Intermediates							*/
+/*----------------------------------------------------------------------*/
+
+/* Horizontal byte */
+H6 = HBLANK;
+FIELD hbyte = [H6,H5,H4, H3,H2,H1,H0];
+
+/* Vertical line */
+V1 = 'b'0;
+V6 = 'b'0;
+V7 = 'b'0;
+FIELD vline = [V9,V8, V7,V6,V5,V4, V3,V2,V1,V0];
+
+/*----------------------------------------------------------------------*/
+/* Equations								*/
+/*----------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------*/
+/* SYNCGAL3 reverse engineered equations
+VSCRST	=  L512 &  V9 & !V8 & !V3 & !V2
+	# !L512 &        V8;
+
+BLANK	=  L512 &  V9 & !V8 & !V3 & !V2
+	#  L512 &  V9 & !V8 & !V5
+	#  L512 &  V9 & !V8
+	# !L512 &        V8
+	# H6;
+
+VSYNC	=  L512 &  V9 & !V8 & !V5 & !V4 &  V3 & !V2
+	# !L512 & !V9 &  V8 & !V5 &  V4 & !V3 & !V2;
+
+HSYNC	=  H6 & !H5 & !H4 & !H3 &  H2 &  H1
+	#  H6 & !H5 & !H4 &  H3 & !H2;
+
+LRST	=  H6 & !H5 &  H4 & !H3 & !H2 & !H1 & !H0;
+
+LASTL	= !L512 & !V9 &  V8 &  V5 &  V4 & !V3 & !V2 & !V0
+	#  L512 &  V9 & !V8 & !V5 &  V4 &  V3 &  V2 &  V0;
+
+LINC	=  H6 & !H5 & !H4 & !H3 & !H2 & !H1 & !H0;
+*/
+/*----------------------------------------------------------------------*/
+
+/* Can not change .. causes horizontal shear */
+LINC	=  hbyte:'D'64;
+HSYNC	=  hbyte:'D'[70..75];
+LRST	=  hbyte:'D'80;
+
+/* SYNCGAL3
+VSCRST	=  L512 &  V9 & !V8 & !V3 & !V2
+	# !L512 &        V8;
+
+BLANK	=  L512 &  V9 & !V8 & !V3 & !V2
+	#  L512 &  V9 & !V8 & !V5
+	#  L512 &  V9 & !V8
+	# !L512 &        V8
+	# H6;
+
+VSYNC	=  L512 &  V9 & !V8 & !V5 & !V4 &  V3 & !V2
+	# !L512 & !V9 &  V8 & !V5 &  V4 & !V3 & !V2;
+
+LASTL	= !L512 & !V9 &  V8 &  V5 &  V4 & !V3 & !V2 & !V0
+	#  L512 &  V9 & !V8 & !V5 &  V4 &  V3 &  V2 &  V0;
+*/
+
+/* SYNCGAL3 as decimal
+VSCRST	=  L512 & vline:'D'[512..639]
+	# !L512 & vline:'D'256;
+
+BLANK	=  L512 & vline:'D'[512..639]
+	# !L512	& vline:'D'[256..511]
+	#  H6;
+
+VSYNC	=  L512 & vline:'D'[520..523]
+	# !L512 & vline:'D'[272..275];
+
+LASTL	=  L512 & vline:'D'541
+	# !L512 & vline:'D'304;
+*/
+
+VSCRST	=  L512 & vline:'D'[512..767]
+	# !L512 & vline:'D'[256..511];
+
+BLANK	=  L512 & vline:'D'[512..767]
+	# !L512	& vline:'D'[256..511]
+	#  H6;
+
+VSYNC	=  L512 & vline:'D'[520..521]
+	# !L512 & vline:'D'300;
+
+LASTL	=  L512 & vline:'D'541
+	# !L512 & vline:'D'304;

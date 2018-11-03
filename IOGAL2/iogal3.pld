@@ -1,0 +1,87 @@
+Name		IOGAL3 ;
+Partno		IOGAL3 ;
+Date		21/10/18 ;
+Revision	03 ;
+Designer	Chris Alfred ;
+Company		Chris Alfred ;
+Assembly	ESP-CG3 ;
+Location	U66 ;
+Device		p22v10 ;
+
+/*----------------------------------------------------------------------*/
+/* Inputs								*/
+/*----------------------------------------------------------------------*/
+
+Pin 1	= CA;		/* Column address */
+Pin 2	= DBCAS;	/* Delayed BCAS */
+Pin 3	= L512;		/* 512 lines mode */
+Pin 4	= LA1;		/* Latched address 1 */
+Pin 5	= LA3;		/* Latched address 3 */
+Pin 6	= LA0;		/* Latched address 0 */
+Pin 7	= !VRAM;	/* Video ram access */
+Pin 8	= !IOSEL;	/* IO select */
+Pin 9	= LA4;		/* Latched address 4 */
+Pin 10	= LA2;		/* Latched address 2 */
+Pin 11	= !LP1SEL;	/* Latched P1 select */
+Pin 13	= LADD1;	/* Latched address cycle P1 */
+
+/*----------------------------------------------------------------------*/
+/* Outputs								*/
+/*----------------------------------------------------------------------*/
+
+Pin 14	= CPUADD;	/* CPU address cycle */
+Pin 15	= !DBEN;	/* Data bus enable */
+Pin 16	= !RAMEN;	/* Enable VRAM access */
+Pin 17	= S2;		/* Select 2 */
+Pin 18	= S1;		/* Select 1 */
+Pin 19	= S0;		/* Select 0 */
+Pin 20	= !XDN;		/* X scroll down */
+Pin 21	= !XUP;		/* X scroll up */
+Pin 22	= !YDN;		/* Y scroll down */
+Pin 23	= !YUP;		/* Y scroll up */
+
+/*----------------------------------------------------------------------*/
+/* Intermediates							*/
+/*----------------------------------------------------------------------*/
+
+FIELD la = [LA4,LA3,LA2,LA1,LA0];
+
+/*----------------------------------------------------------------------*/
+/* Equations								*/
+/*----------------------------------------------------------------------*/
+
+YUP	= IOSEL & CA &  LA4 & !LA3 &  LA2;
+YDN	= IOSEL & CA &  LA4 &  LA3 & !LA2;
+XUP	= IOSEL & CA &  LA4               & !LA1 &  LA0;
+XDN	= IOSEL & CA &  LA4               &  LA1 & !LA0;
+
+S0	= IOSEL & CA & !DBCAS        &  LA3 & !LA2        & !LA0
+	# IOSEL                      & !LA3 &  LA2 & !LA1
+	# IOSEL                      &  LA3 & !LA2 & !LA1
+	# IOSEL               &  LA4                      & !LA0
+	# IOSEL               &  LA4               & !LA1;
+
+S1	= IOSEL & CA & !DBCAS & !LA4 &  LA3 & !LA2        & LA0
+	# IOSEL                      & !LA3 &  LA2 & !LA1
+	# IOSEL                      &  LA3 & !LA2 & !LA1
+	# IOSEL               &  LA4                      & !LA0
+	# IOSEL               &  LA4               & !LA1
+	# VRAM       & !DBCAS & !LP1SEL & !LADD1
+	# VRAM       & !DBCAS &  LP1SEL &  LADD1;
+
+S2 	= IOSEL & CA & !DBCAS & !LA4 & !LA3 &  LA2        & !LA0
+	# IOSEL & CA & !DBCAS & !LA4 &  LA3 & !LA2
+	# IOSEL               & !LA4 & !LA3 &  LA2 & !LA1
+	# IOSEL               & !LA4 &  LA3 & !LA2 & !LA1;
+
+RAMEN	= VRAM  & !DBCAS & !LP1SEL & !LADD1
+ 	# VRAM  & !DBCAS &  LP1SEL &  LADD1
+	# IOSEL & !DBCAS                    &  LA4;
+
+!DBEN	= VRAM  & CA & !LP1SEL & !LADD1
+	# VRAM  & CA &  LP1SEL &  LADD1
+	# IOSEL & CA;
+
+CPUADD	= !L512 & !LP1SEL & !LADD1
+	# !L512 &  LP1SEL &  LADD1
+	#  L512 & !DBCAS;
