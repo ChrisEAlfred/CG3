@@ -40,7 +40,7 @@ python.exe .\gal22v10parse.py ..\CG3\IOGAL2\iogal2_readback.jed "CA DBCAS L512 L
 LINEGAL4
 
 ~~~
-python.exe .\gal22v10parse.py ..\CG3\LINEGAL\linegal4_readback.jed "DDCLK DOTCLK P3 P4 CPUADD P6 BC4 BC5 BC3 BC2 HBLANK !PALEN !PLOAD !SHIFT !PLOAD P17 P18 P19 P20 !FIFOR !FIFOMR FIFOW" linegal4 4 "Chris Alfred" "Chris Alfred" "ESP-CG3" "Ux" > ..\CG3\LINEGAL\linegal4.pld
+python.exe .\gal22v10parse.py ..\CG3\LINEGAL\linegal4_readback.jed "DDCLK DOTCLK P3 P4 CPUADD P6 BC4 BC5 BC3 BC2 HBLANK !PALEN !PLOAD1 !SHIFT PLOAD2 P17 P18 P19 P20 !FIFOR !FIFOMR FIFOW" linegal4 4 "Chris Alfred" "Chris Alfred" "ESP-CG3" "Ux" > ..\CG3\LINEGAL\linegal4.pld
 ~~~
 
 OUTPUT4

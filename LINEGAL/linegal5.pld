@@ -1,0 +1,141 @@
+Name		LINEGAL5 ;
+Partno		LINEGAL5 ;
+Date		16/11/18 ;
+Revision	05 ;
+Designer	Chris Alfred ;
+Company		Chris Alfred ;
+Assembly	ESP-CG3 ;
+Location	U6 ;
+Device		p22v10 ;
+
+/*----------------------------------------------------------------------*/
+/* Inputs								*/
+/*----------------------------------------------------------------------*/
+
+Pin 1	= DDCLK;
+Pin 2	= DOTCLK;
+Pin 3	= P3;
+Pin 4	= P4;
+Pin 5	= CPUADD;
+Pin 6	= P6;
+Pin 7	= BC4;
+Pin 8	= BC5;
+Pin 9	= BC3;
+Pin 10	= BC2;
+Pin 11	= HBLANK;
+Pin 13	= !PALEN;
+
+/*----------------------------------------------------------------------*/
+/* Outputs								*/
+/*----------------------------------------------------------------------*/
+
+Pin 14	= !PLOAD1;
+Pin 15	= !SHIFT;
+Pin 16	= PLOAD2;
+Pin 17	= Q0;
+Pin 18	= Q1;
+Pin 19	= Q2;
+Pin 20	= Q3;
+Pin 21	= !FIFOR;
+Pin 22	= !FIFOMR;
+Pin 23	= FIFOW;
+
+/*----------------------------------------------------------------------*/
+/* Intermediates							*/
+/*----------------------------------------------------------------------*/
+
+field count = [Q3..0];
+
+/*----------------------------------------------------------------------*/
+/* Equations								*/
+/*----------------------------------------------------------------------*/
+
+sequence count {
+	present 'd'0	next 'd'14 ;	/* Startup */
+	present 'd'1	next 'd'14 ;	/* unused */
+	present 'd'2	next 'd'14 ;	/* unused */
+
+	present 'd'3	next 'd'7 ;
+
+	present 'd'4	next 'd'12 ;
+
+	present 'd'5	next 'd'14 ;	/* unused */
+
+	present 'd'6	next 'd'4 ;
+
+	present 'd'7	next 'd'6 ;
+
+	present 'd'8	if HBLANK # BC5 # BC4 # BC3 # BC2 next 'd'10 ;
+			default next 'd'11 ;
+
+	/* Master reset */
+	present 'd'9	if CPUADD next 'd'8 ;
+			default next 'd'9 ;
+
+	present 'd'10	next 'd'11 ;
+
+	present 'd'11	next 'd'3 ;
+
+	present 'd'12	if !HBLANK & !BC5 & !BC4 & !BC3 & !BC2 next 'd'13 ;
+			if  HBLANK #  BC5 #  BC4 #  BC3 #  BC2 next 'd'14 ;
+			default next 'd'15 ;
+
+	present 'd'13	if !CPUADD & HBLANK next 'd'9 ;
+			default next 'd'13 ;
+
+	/* Wait for CPUADD */
+	present 'd'14	if !CPUADD next 'd'14 ;
+			default next 'd'15 ;
+
+	present 'd'15	next 'd'10 ;
+}
+
+Q0.sp = 'b'0;
+Q0.ar = 'b'0;
+Q0.oe = 'b'1;
+
+Q1.sp = 'b'0;
+Q1.ar = 'b'0;
+Q1.oe = 'b'1;
+
+Q2.sp = 'b'0;
+Q2.ar = 'b'0;
+Q2.oe = 'b'1;
+
+Q3.sp = 'b'0;
+Q3.ar = 'b'0;
+Q3.oe = 'b'1;
+
+FIFOMR = count:'d'9;
+FIFOMR.oe = 'b'1;
+
+FIFOR = !DOTCLK & !HBLANK & !PALEN
+      # !DDCLK  & !HBLANK & !PALEN;
+FIFOR.oe = 'b'1;
+
+
+/* parallel load */
+
+PLOAD1 = !CPUADD & count:'d'9
+       # !CPUADD & count:'d'14
+       # count:'d'13;
+PLOAD1.oe = 'b'1;
+
+PLOAD2 = !CPUADD & count:'d'14
+       # !CPUADD & (count:'d'9 # count:'d'13)
+       # count:'d'13;
+PLOAD2.oe = 'b'1;
+
+/* Shift and fifo write */
+
+!SHIFT = !DDCLK & (count:'d'4 # count:'d'6)
+       # !DDCLK & (count:'d'8 # count:'d'12)
+       # !DDCLK & (count:'d'10 # count:'d'11)
+       # !DDCLK & (count:'d'3 # count:'d'7 # count:'d'13 # count:'d'15);
+SHIFT.oe = 'b'1;
+
+FIFOW = !DDCLK & (count:'d'4 # count:'d'6)
+      # !DDCLK & (count:'d'8 # count:'d'12)
+      # !DDCLK & (count:'d'10 # count:'d'11)
+      # !DDCLK & (count:'d'3 # count:'d'7 # count:'d'13 # count:'d'15);
+FIFOW.oe = 'b'1;

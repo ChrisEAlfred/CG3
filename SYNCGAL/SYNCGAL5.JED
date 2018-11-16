@@ -1,7 +1,7 @@
 
 CUPL            2.50a  Serial# MD-250-3664
 Device          p22v10  Library DLIB-h-24-17
-Created         Wed Oct 24 19:17:15 2018
+Created         Sun Nov 11 12:30:11 2018
 Name            SYNCGAL5 
 Partno          SYNCGAL5 
 Revision        05 
@@ -58,4 +58,4 @@ Location        U27
 *L5792 00000000000000000111010101010101
 *L5824 0111
 *C7CBB
-*9784
+*9793
